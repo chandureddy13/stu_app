@@ -3,6 +3,18 @@ import pandas as pd
 import numpy as np
 import pickle
 from sklearn.preprocessing import StandardScaler, LabelEncoder
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
+import urllib.parse
+import json
+
+# MongoDB Connection
+username = urllib.parse.quote_plus("chandureddy2579")
+password = urllib.parse.quote_plus("K.madan@10121963")
+uri = f"mongodb+srv://{username}:{password}@cluster0.9zkya.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+client = MongoClient(uri, server_api=ServerApi('1'))
+db = client["CHANDU_DB"]
+collection = db["CHANDU_pred"]
 
 # Load model, scaler, and label encoder
 def load_model():
@@ -39,6 +51,10 @@ def predict_data(data):
     pred = model.predict(processed_data)
     return pred
 
+# Convert NumPy types to native Python types
+def convert_numpy_types(data):
+    return json.loads(json.dumps(data, default=lambda x: x.item() if isinstance(x, np.generic) else x))
+
 # Streamlit UI
 def main():
     st.title("Chandu's First Project")
@@ -62,6 +78,12 @@ def main():
         }
 
         prediction = predict_data(user_data)
+        user_data['Predicted'] = float(prediction[0])  # Convert NumPy type to float
+
+        # Convert NumPy types to native Python types before inserting into MongoDB
+        user_data = convert_numpy_types(user_data)
+
+        collection.insert_one(user_data)
         st.success(f"Your predicted score is: {prediction[0]:.2f}")
 
 # Run the app
