@@ -8,13 +8,14 @@ from pymongo.server_api import ServerApi
 import urllib.parse
 import json
 
-# MongoDB Connection
+
 username = urllib.parse.quote_plus("chandureddy2579")
 password = urllib.parse.quote_plus("K.madan@10121963")
 uri = f"mongodb+srv://{username}:{password}@cluster0.9zkya.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 client = MongoClient(uri, server_api=ServerApi('1'))
 db = client["CHANDU_DB"]
 collection = db["CHANDU_pred"]
+
 
 # Load model, scaler, and label encoder
 def load_model():
